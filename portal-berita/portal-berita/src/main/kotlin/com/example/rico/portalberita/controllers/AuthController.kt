@@ -19,6 +19,7 @@ import java.util.*
 import javax.servlet.http.Cookie
 import javax.servlet.http.HttpServletResponse
 
+@Suppress("UNREACHABLE_CODE")
 @RestController
 //@RequestMapping(value = ["/news"], produces = [MediaType.APPLICATION_JSON_VALUE])
 class AuthController(
@@ -54,7 +55,7 @@ class AuthController(
 
         val jwt = Jwts.builder()
             .setIssuer(issuer)
-            .setExpiration(Date(System.currentTimeMillis() + 30 * 1000))
+            .setExpiration(Date(System.currentTimeMillis() + 1800000))
             .signWith(SignatureAlgorithm.HS512, "password").compact()
 
         val cookies = Cookie("jwt", jwt)
@@ -68,16 +69,16 @@ class AuthController(
     @GetMapping("/user")
     fun user(
         @CookieValue("jwt") jwt: String?
-    ): ResponseEntity<Any>{
+    ): ResponseEntity<Any> {
         try {
-            if (jwt == null){
+            if (jwt == null) {
                 return ResponseEntity.status(401).body(Message("unauthenticated"))
             }
 
             val body = Jwts.parser().setSigningKey("password").parseClaimsJws(jwt).body
 
             return ResponseEntity(this.userService.getById(body.issuer.toInt()), HttpStatus.OK)
-        } catch (e: Exception){
+        } catch (e: Exception) {
             return ResponseEntity.status(401).body(Message("unauthenticated"))
         }
 
@@ -93,10 +94,5 @@ class AuthController(
             return ResponseEntity(Message("Logout Successfully"), HttpStatus.OK)
         }
 
-    }
-
-    @GetMapping("/hello")
-    fun hello(): String {
-        return "hello"
     }
 }
